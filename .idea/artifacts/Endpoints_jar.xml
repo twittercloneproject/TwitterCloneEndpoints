@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Endpoints:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Endpoints_jar</output-path>
+    <root id="archive" name="Endpoints.jar">
+      <element id="module-output" name="Endpoints" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/amazonaws/aws-lambda-java-core/1.2.0/aws-lambda-java-core-1.2.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
