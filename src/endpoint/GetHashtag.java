@@ -2,11 +2,11 @@ package endpoint;
 
 import dummydata.Model;
 import request.HashtagRequest;
-import result.HashtagResult;
+import result.StatusesResult;
 
 public class GetHashtag {
-    public HashtagResult getHashtag(HashtagRequest request) {
-        HashtagResult result = new HashtagResult();
+    public StatusesResult getHashtag(HashtagRequest request) {
+        StatusesResult result = new StatusesResult();
         Model model = new Model();
         result.statuses = model.hastags;
         return result;

@@ -1,14 +1,14 @@
 package endpoint;
 
 import dummydata.Model;
-import request.FollowerRequest;
-import result.FollowingResult;
+import request.RequestByAlias;
+import result.UsersResult;
 
 public class GetFollowing {
-    public FollowingResult getFollowing(FollowerRequest request) {
-        FollowingResult result = new FollowingResult();
+    public UsersResult getFollowing(RequestByAlias request) {
+        UsersResult result = new UsersResult();
         Model model = new Model();
-        result.following = model.getFollowing(request.alias);
+        result.users = model.getFollowing(request.alias);
         return result;
     }
 }

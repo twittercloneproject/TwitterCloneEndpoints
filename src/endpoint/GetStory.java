@@ -1,14 +1,14 @@
 package endpoint;
 
 import dummydata.Model;
-import request.StoryRequest;
-import result.StoryResult;
+import request.RequestByAlias;
+import result.StatusesResult;
 
 public class GetStory {
-    public StoryResult getStory(StoryRequest request) {
-        StoryResult result = new StoryResult();
+    public StatusesResult getStory(RequestByAlias request) {
+        StatusesResult result = new StatusesResult();
         Model model = new Model();
-        result.story = model.getStory(request.alias);
+        result.statuses = model.getStory(request.alias);
         return result;
     }
 }

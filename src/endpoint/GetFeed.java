@@ -1,14 +1,14 @@
 package endpoint;
 
 import dummydata.Model;
-import request.FeedRequest;
-import result.FeedResult;
+import request.RequestByAlias;
+import result.StatusesResult;
 
 public class GetFeed {
-    public FeedResult getFeed(FeedRequest request) {
-        FeedResult result = new FeedResult();
+    public StatusesResult getFeed(RequestByAlias request) {
+        StatusesResult result = new StatusesResult();
         Model model = new Model();
-        result.feed = model.getFeed(request.alias);
+        result.statuses = model.getFeed(request.alias);
         return result;
     }
 }

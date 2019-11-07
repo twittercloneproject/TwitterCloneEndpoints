@@ -6,4 +6,5 @@ public class SendStatusRequest {
     public String message;
     public String date;
     public String url;
+    public String profilePic;
 }

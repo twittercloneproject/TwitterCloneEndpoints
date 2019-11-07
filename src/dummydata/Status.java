@@ -10,4 +10,6 @@ public class Status {
     public String alias;
     public String date;
     public String urlPicture;
+    public Integer id;
+    public String profilePic;
 }

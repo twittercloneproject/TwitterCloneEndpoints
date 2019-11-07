@@ -8,7 +8,7 @@ public class GetStatus {
     public StatusResult getStatus(StatusRequest request) {
         StatusResult result = new StatusResult();
         Model model = new Model();
-        result.status = model.getStatus(request.alias, request.date);
+        result.status = model.getStatus(request.id);
         return result;
     }
 }
