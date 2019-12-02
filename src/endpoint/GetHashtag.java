@@ -8,7 +8,7 @@ public class GetHashtag {
     public StatusesResult getHashtag(HashtagRequest request) {
         StatusesResult result = new StatusesResult();
         Model model = new Model();
-        result.statuses = model.hastags;
+        result.statuses = model.getHashtags(request.hashtag, request.lastDate);
         return result;
     }
 }

@@ -1,6 +1,8 @@
 package dummydata;
 
 
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+
 import java.util.List;
 
 public class Status {

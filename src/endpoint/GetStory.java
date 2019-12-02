@@ -8,7 +8,7 @@ public class GetStory {
     public StatusesResult getStory(RequestByAlias request) {
         StatusesResult result = new StatusesResult();
         Model model = new Model();
-        result.statuses = model.getStory(request.alias);
+        result.statuses = model.getStory(request.alias, request.lastDate);
         return result;
     }
 }

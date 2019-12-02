@@ -8,5 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="com.amazonaws:aws-lambda-java-core:1.2.0" level="project" />
+    <orderEntry type="library" name="com.amazonaws:aws-java-sdk-core:1.11.547" level="project" />
+    <orderEntry type="library" name="com.amazonaws:aws-java-sdk-dynamodb:1.11.547" level="project" />
   </component>
 </module>

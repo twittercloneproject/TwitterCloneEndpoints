@@ -1,22 +1,26 @@
 package dummydata;
 
 
+import dao.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Model {
+    private UserDao userDao;
+    private StatusDao statusDao;
+    private FollowsDao followsDao;
+    private HashtagDao hashtagDao;
+    private FeedDao feedDao;
     Person person1 = new Person("test1","test1", new Alias("@test1"), 0);
     Person person2 = new Person("test2","test2", new Alias("@test2"), 0);
     Person person3 = new Person("test3","test3", new Alias("@test3"), 0);
     Person person4 = new Person("test4","test4", new Alias("@test4"), 0);
-    Person person5 = new Person("test5","test5", new Alias("@test5"), 0);
-    Person person6 = new Person("test6","test6", new Alias("@test6"), 0);
     User user1 = new User();
     User user2 = new User();
     User user3 = new User();
     User user4 = new User();
-    User user5 = new User();
-    User user6 = new User();
+
     Status status1 = new Status();
     Status status2 = new Status();
     Status status3 = new Status();
@@ -31,6 +35,11 @@ public class Model {
     public List<Status> hastags = new ArrayList<Status>();
 
     public Model() {
+        userDao = new UserDao();
+        statusDao = new StatusDao();
+        followsDao = new FollowsDao();
+        hashtagDao = new HashtagDao();
+        feedDao = new FeedDao();
         user1.firstName = "test1";
         user1.lastName = "test1";
         user1.alias = "@test1";
@@ -200,60 +209,73 @@ public class Model {
         return null;
     }
 
+    public void addUser(String alias, String firstName, String lastName, String profilePic) throws DataAccessException {
+        userDao.insertUser(alias, firstName, lastName, profilePic);
+    }
+
     public User getUser(String alias) {
-        for(int i = 0; i < allUsers.size(); i++) {
-            if(allUsers.get(i).alias.equals(alias)) {
-                return allUsers.get(i);
-            }
+        User user = this.userDao.getUser(alias);
+        return user;
+    }
+
+    public Status getStatus(String username, String time) {
+        Status status = this.statusDao.getStatus(username, time);
+        return status;
+    }
+
+    public List<User> getFollowing(String alias, String userKey) {
+        return followsDao.getFollowing(alias, userKey);
+    }
+
+    public List<User> getFollower(String alias, String userKey) {
+        return followsDao.getFollowers(alias, userKey);
+    }
+
+    public List<Status> getFeed(String alias, String dateKey) {
+        return feedDao.getFeed(alias, dateKey);
+    }
+
+    public List<Status> getStory(String alias, String dateKey) {
+        return this.statusDao.getStory(alias, dateKey);
+    }
+
+    public void follow(String followerUsername, String followeeUsername) throws DataAccessException {
+        User followerUser = userDao.getUser(followerUsername);
+        User followeeUser = userDao.getUser(followeeUsername);
+        followsDao.follow(followerUser.alias, followerUser.firstName, followerUser.lastName, followerUser.urlPicture,
+                followeeUser.alias, followeeUser.firstName, followeeUser.lastName, followeeUser.urlPicture);
+    }
+
+    public void unfollow(String followerUsername, String followeeUsername) {
+        followsDao.unFollow(followerUsername, followeeUsername);
+    }
+
+    public boolean isFollowing(String followerUsername, String followeeUsername) {
+        return followsDao.isFollowing(followerUsername, followeeUsername);
+    }
+
+    public List<Status> getHashtags(String hashtag, String dateKey) {
+        return this.hashtagDao.getHashtags(hashtag, dateKey);
+    }
+
+    public void sendStatus(String username, String name, String date, String message, List<String> hashtags,
+                           String profilePic, String attachment) throws DataAccessException {
+        List<User> fs = followsDao.getFollowers(username, "");
+        List<User> followers = new ArrayList<User>(fs);
+        while(fs.size() == 25) {
+            fs = followsDao.getFollowers(username, "");
+            followers.addAll(fs);
         }
-        return null;
-    }
-
-    public Status getStatus(int num) {
-        for (Status s:this.allStatuses) {
-            if(s.id == num) {
-                return s;
-            }
+        List<String> usernames = new ArrayList<String>();
+        for(int i = 0; i < followers.size(); i++) {
+            usernames.add(followers.get(i).alias);
         }
-        return null;
-    }
-
-    public List<User> getFollowing(String alias) {
-        Person p = this.getPerson(alias);
-        List<Person> pFollowing  = p.getFollowings();
-        List<User> follow = new ArrayList<User>();
-        for(int i = 0; i < allUsers.size(); i++) {
-            for(int j = 0; j < pFollowing.size(); j++) {
-                if(allUsers.get(i).alias.equals(pFollowing.get(j).getAlias().getUsername())) {
-                    follow.add(allUsers.get(i));
-                }
-            }
+        statusDao.insertStatus(username, date, message, name, profilePic, attachment, hashtags);
+        feedDao.insertStatus(username, date, message, name, profilePic, attachment, hashtags, usernames);
+        for(int i = 0; i < hashtags.size(); i++) {
+            hashtagDao.insertStatus(hashtags.get(i), username, date, name, message, hashtags, profilePic, attachment);
         }
-        return follow;
     }
 
-    public List<User> getFollower(String alias) {
-        Person p = this.getPerson(alias);
-        List<Person> pFollowers  = p.getFollowers();
-        List<User> follow = new ArrayList<User>();
-        for(int i = 0; i < allUsers.size(); i++) {
-            for(int j = 0; j < pFollowers.size(); j++) {
-                if(allUsers.get(i).alias.equals(pFollowers.get(j).getAlias().getUsername())) {
-                    follow.add(allUsers.get(i));
-                }
-            }
-        }
-        return follow;
-    }
-
-    public List<Status> getFeed(String alias) {
-        Person p = this.getPerson(alias);
-        return p.getFeed().getStatuses();
-    }
-
-    public List<Status> getStory(String alias) {
-        Person p = this.getPerson(alias);
-        return p.getStory().getMyStatuses();
-    }
 
 }

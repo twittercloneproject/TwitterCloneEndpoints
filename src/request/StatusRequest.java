@@ -2,5 +2,6 @@ package request;
 
 
 public class StatusRequest {
-    public int id;
+    public String alias;
+    public String time;
 }

@@ -8,7 +8,7 @@ public class GetFeed {
     public StatusesResult getFeed(RequestByAlias request) {
         StatusesResult result = new StatusesResult();
         Model model = new Model();
-        result.statuses = model.getFeed(request.alias);
+        result.statuses = model.getFeed(request.alias, request.lastDate);
         return result;
     }
 }
