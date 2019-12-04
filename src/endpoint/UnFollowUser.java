@@ -8,7 +8,7 @@ public class UnFollowUser {
     public UnFollowResult unFollowUser(UnFollowRequest request) {
         UnFollowResult result = new UnFollowResult();
         Model model = new Model();
-        model.unfollow(request.currentAlias, request.otherAlias);
+        model.unfollow(request.currentAlias, request.otherAlias, request.authToken);
 
         result.message = "success";
         return result;

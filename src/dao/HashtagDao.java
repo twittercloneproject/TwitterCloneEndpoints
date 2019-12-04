@@ -58,9 +58,10 @@ public class HashtagDao {
         QueryRequest queryRequest = new QueryRequest()
                 .withTableName(TableName)
                 .withKeyConditionExpression("#hash = :hashtag")
+                .withScanIndexForward(false)
                 .withExpressionAttributeNames(attrNames)
                 .withExpressionAttributeValues(attrValues)
-                .withLimit(25);
+                .withLimit(2);
 
         if (!dateKey.equals("")) {
             Map<String, AttributeValue> startKey = new HashMap<>();

@@ -7,6 +7,9 @@ import com.amazonaws.services.dynamodbv2.model.*;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import dummydata.User;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class UserDao {
     private static final String TableName = "users";
@@ -20,6 +23,18 @@ public class UserDao {
             .withRegion("us-west-2")
             .build();
     private static DynamoDB dynamoDB = new DynamoDB(amazonDynamoDB);
+
+    public void update(String username, String profilePic) {
+        Table table = dynamoDB.getTable(TableName);
+        Map<String, String> attrNames = new HashMap<String, String>();
+        attrNames.put("#user", profilePicAttr);
+
+        Map<String, Object> attrValues = new HashMap<String, Object>();
+        attrValues.put(":us", profilePic);
+
+        table.updateItem(usernameAttr, username,
+                "set #user = :us", attrNames, attrValues);
+    }
 
     public void insertUser(String username, String firstName, String lastName, String profilePic) throws DataAccessException {
         Table table = dynamoDB.getTable(TableName);

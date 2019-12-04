@@ -33,6 +33,10 @@ public class FollowsDao {
     public boolean isFollowing(String followerUsername, String followeeUsername) {
         Table table = dynamoDB.getTable(TableName);
         Item item = table.getItem(followerUsernameAttr, followerUsername, followeeUsernameAttr, followeeUsername);
+
+        if(item.getString(followeeUsernameAttr) == null) {
+            return false;
+        }
         if(item == null) {
             return false;
         }
@@ -79,7 +83,7 @@ public class FollowsDao {
                 .withKeyConditionExpression("#us = :user")
                 .withExpressionAttributeNames(attrNames)
                 .withExpressionAttributeValues(attrValues)
-                .withLimit(25);
+                .withLimit(2);
 
         if (!lastFollowee.equals("")) {
             Map<String, AttributeValue> startKey = new HashMap<>();
@@ -114,7 +118,7 @@ public class FollowsDao {
                 .withKeyConditionExpression("#us = :user")
                 .withExpressionAttributeNames(attrNames)
                 .withExpressionAttributeValues(attrValues)
-                .withLimit(25);
+                .withLimit(2);
 
         if (!lastFollower.equals("")) {
             Map<String, AttributeValue> startKey = new HashMap<>();

@@ -59,9 +59,10 @@ public class FeedDao {
         QueryRequest queryRequest = new QueryRequest()
                 .withTableName(TableName)
                 .withKeyConditionExpression("#us = :user")
+                .withScanIndexForward(false)
                 .withExpressionAttributeNames(attrNames)
                 .withExpressionAttributeValues(attrValues)
-                .withLimit(25);
+                .withLimit(2);
 
         if (!dateKey.equals("")) {
             Map<String, AttributeValue> startKey = new HashMap<>();
