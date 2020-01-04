@@ -7,7 +7,9 @@ import com.amazonaws.services.dynamodbv2.model.*;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import dummydata.User;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -67,6 +69,33 @@ public class UserDao {
         user.lastName = item.get(lastNameAttr).toString();
         user.urlPicture = item.get(profilePicAttr).toString();
         return user;
+    }
+
+    public void createLotUsers(List<String> usernames, List<String> firstNames,List<String> lastNames) {
+        List<Item> newItems = new ArrayList<Item>();
+        int length = usernames.size();
+        System.out.println(length);
+        for(int i = 0; i < length; i++) {
+            Item item = new Item()
+                    .withPrimaryKey(usernameAttr, usernames.get(i))
+                    .withString(firstNameAttr, firstNames.get(i))
+                    .withString(lastNameAttr, lastNames.get(i))
+                    .withString(profilePicAttr, "a");
+            newItems.add(item);
+            if(newItems.size() == 25) {
+                TableWriteItems tableWriteItems = new TableWriteItems(TableName)
+                        .withItemsToPut(newItems);
+                BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(tableWriteItems);
+                newItems.clear();
+            }
+        }
+        if(newItems.size() > 0) {
+            TableWriteItems tableWriteItems = new TableWriteItems(TableName)
+                    .withItemsToPut(newItems);
+            BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(tableWriteItems);
+            System.out.println(outcome);
+        }
+
     }
 
 

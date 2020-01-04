@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.model.*;
+import dummydata.Model;
 import dummydata.Status;
 
 import java.util.ArrayList;
@@ -29,24 +30,46 @@ public class FeedDao {
     private static DynamoDB dynamoDB = new DynamoDB(amazonDynamoDB);
 
     public void insertStatus(String username, String time, String message, String name,
-                             String profilePic, String attachment, List<String> hashtags, List<String> followers) throws DataAccessException {
-        Table table = dynamoDB.getTable(TableName);
-        try {
-            for(int i = 0; i < followers.size(); i++) {
-                Item item = new Item()
-                        .withPrimaryKey(followerUsernameAttr, followers.get(i), timeAttr, time)
-                        .withString(usernameAttr, username)
-                        .withString(nameAttr, name)
-                        .withString(messageAttr, message)
-                        .withString(profilePicAttr, profilePic)
-                        .withString(attachmentAttr, attachment)
-                        .withList(hashtagsAttr, hashtags);
-                table.putItem(item);
+                             String profilePic, String attachment, String hashtags, List<String> followers) throws DataAccessException {
+        List<Item> newItems = new ArrayList<Item>();
+        for(int i = 0; i < followers.size(); i++) {
+            Item item = new Item()
+                    .withPrimaryKey(followerUsernameAttr, followers.get(i), timeAttr, time)
+                    .withString(usernameAttr, username)
+                    .withString(nameAttr, name)
+                    .withString(messageAttr, message)
+                    .withString(profilePicAttr, profilePic)
+                    .withString(attachmentAttr, attachment)
+                    .withString(hashtagsAttr, hashtags);
+            newItems.add(item);
+            if(newItems.size() == 25) {
+                TableWriteItems tableWriteItems = new TableWriteItems(TableName)
+                        .withItemsToPut(newItems);
+                BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(tableWriteItems);
+                while(outcome.getUnprocessedItems().size() > 0) {
+                    try {
+                        Thread.sleep(2);
+                    }
+                    catch (InterruptedException e) {
+                        System.out.println("error");
+                        System.out.println(e);
+                    }
+
+                    outcome = dynamoDB.batchWriteItemUnprocessed(outcome.getUnprocessedItems());
+                    System.out.println(outcome);
+
+                }
+                newItems.clear();
             }
         }
-        catch (Exception e) {
-            throw new DataAccessException(e);
+
+        if(newItems.size() > 0) {
+            TableWriteItems tableWriteItems = new TableWriteItems(TableName)
+                    .withItemsToPut(newItems);
+            BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(tableWriteItems);
+            System.out.println(outcome);
         }
+
     }
 
     public List<Status> getFeed(String username, String dateKey) {
@@ -85,10 +108,11 @@ public class FeedDao {
     }
 
     private Status convertItemToStatus(Map<String, AttributeValue> item) {
+        Model model = new Model();
         Status status = new Status();
         status.alias = item.get(usernameAttr).getS();
         status.date = item.get(timeAttr).getS();
-        status.hashtags = item.get(hashtagsAttr).getNS();
+        status.hashtags = model.stringToList(item.get(hashtagsAttr).getS());
         status.message = item.get(messageAttr).getS();
         status.name = item.get(nameAttr).getS();
         status.urlPicture = item.get(attachmentAttr).getS();

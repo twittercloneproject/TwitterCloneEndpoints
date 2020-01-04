@@ -12,7 +12,9 @@ public class Register {
         RegisterResult result = new RegisterResult();
         Model model = new Model();
         if(request.firstName.equals("a")) {
-
+            model.updateUser(request.alias, request.url);
+            result.message = "a";
+            return result;
         }
         String newToken = UUID.randomUUID().toString();
         newToken = newToken.substring(0, 8);

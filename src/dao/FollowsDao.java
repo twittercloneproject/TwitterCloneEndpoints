@@ -66,6 +66,36 @@ public class FollowsDao {
         }
     }
 
+    public void batchFollow(List<String> followersUsername, List<String> followersFirstName, List<String> followersLastName,
+                            String followeeUsername, String followeeFirstName, String followeeLastName, String followeeProfilePic) {
+        List<Item> newItems = new ArrayList<Item>();
+        int length = followersUsername.size();
+        System.out.println(length);
+        for(int i = 0; i < length; i++) {
+            Item item = new Item()
+                    .withPrimaryKey(followerUsernameAttr, followersUsername.get(i), followeeUsernameAttr, followeeUsername)
+                    .withString(followerFirstNameAttr, followersFirstName.get(i))
+                    .withString(followerLastNameAttr, followersLastName.get(i))
+                    .withString(followerProfilePicAttr, "a")
+                    .withString(followeeFirstNameAttr, followeeFirstName)
+                    .withString(followeeLastNameAttr, followeeLastName)
+                    .withString(followeeProfilePicAttr, followeeProfilePic);
+            newItems.add(item);
+            if(newItems.size() == 25) {
+                TableWriteItems tableWriteItems = new TableWriteItems(TableName)
+                        .withItemsToPut(newItems);
+                BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(tableWriteItems);
+                newItems.clear();
+            }
+        }
+        if(newItems.size() > 0) {
+            TableWriteItems tableWriteItems = new TableWriteItems(TableName)
+                    .withItemsToPut(newItems);
+            BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(tableWriteItems);
+            System.out.println(outcome);
+        }
+    }
+
     public void unFollow(String followerUsername, String followeeUsername) {
         Table table = dynamoDB.getTable(TableName);
         table.deleteItem(followerUsernameAttr, followerUsername, followeeUsernameAttr, followeeUsername);
@@ -118,7 +148,7 @@ public class FollowsDao {
                 .withKeyConditionExpression("#us = :user")
                 .withExpressionAttributeNames(attrNames)
                 .withExpressionAttributeValues(attrValues)
-                .withLimit(2);
+                .withLimit(25);
 
         if (!lastFollower.equals("")) {
             Map<String, AttributeValue> startKey = new HashMap<>();

@@ -14,6 +14,7 @@ import javax.swing.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Model {
@@ -127,21 +128,99 @@ public class Model {
     public void sendStatus(String username, String name, String date, String message, List<String> hashtags,
                            String profilePic, String attachment, String authToken) throws DataAccessException {
         authDao.checkAuthToken(username, authToken);
+
+        statusDao.insertStatus(username, date, message, name, profilePic, attachment, hashtags);
+        for(int i = 0; i < hashtags.size(); i++) {
+            hashtagDao.insertStatus(hashtags.get(i), username, date, name, message, hashtags, profilePic, attachment);
+        }
+    }
+
+    public void feedBatchWrite(List<String> followersUsername, String username, String name, String date,
+                               String message, List<String> hashtags, String profilePic, String attachment) {
+        try {
+            feedDao.insertStatus(username, date, message, name, profilePic, attachment, listToString(hashtags), followersUsername);
+        }
+        catch (DataAccessException e) {
+            System.out.println("Data Access Exception Model");
+            System.out.println(e);
+        }
+    }
+
+    public List<String> stringToList(String value) {
+        List<String> nList = new ArrayList<String>(Arrays.asList(value.split(",")));
+        return nList;
+    }
+
+    public List<String> getAllFollowers(String username) {
         List<User> fs = followsDao.getFollowers(username, "");
         List<User> followers = new ArrayList<User>(fs);
         while(fs.size() == 25) {
             fs = followsDao.getFollowers(username, fs.get(fs.size()-1).alias);
             followers.addAll(fs);
         }
+        System.out.println("get all followers");
+        System.out.println(followers.size());
         List<String> usernames = new ArrayList<String>();
         for(int i = 0; i < followers.size(); i++) {
             usernames.add(followers.get(i).alias);
         }
-        statusDao.insertStatus(username, date, message, name, profilePic, attachment, hashtags);
-        feedDao.insertStatus(username, date, message, name, profilePic, attachment, hashtags, usernames);
-        for(int i = 0; i < hashtags.size(); i++) {
-            hashtagDao.insertStatus(hashtags.get(i), username, date, name, message, hashtags, profilePic, attachment);
+        return usernames;
+    }
+
+    public String listToString(List<String> values) {
+        if(values.size() == 0) {
+            return "none";
         }
+        StringBuilder sb = new StringBuilder();
+        String delim = ",";
+        int i;
+        for(i = 0; i < values.size()-1; i++) {
+            sb.append(values.get(i));
+            sb.append(delim);
+        }
+        sb.append(values.get(i));
+        return sb.toString();
+    }
+
+    public void createThousandUsersFollowers() {
+        List<String> usernames = new ArrayList<>();
+        List<String> firstNames = new ArrayList<>();
+        List<String> lastNames = new ArrayList<>();
+        for(int i = 0; i < 500; i++) {
+            usernames.add("@" + getRandomString(5));
+            firstNames.add(getRandomString(4));
+            lastNames.add(getRandomString(4));
+        }
+        userDao.createLotUsers(usernames, firstNames, lastNames);
+        User user = userDao.getUser("@test1");
+        followsDao.batchFollow(usernames, firstNames, lastNames, user.alias, user.firstName, user.lastName, "a");
+        usernames.clear();
+        firstNames.clear();
+        lastNames.clear();
+        for(int i = 0; i < 500; i++) {
+            usernames.add("@" + getRandomString(8));
+            firstNames.add(getRandomString(4));
+            lastNames.add(getRandomString(4));
+        }
+        userDao.createLotUsers(usernames, firstNames, lastNames);
+        followsDao.batchFollow(usernames, firstNames, lastNames, user.alias, user.firstName, user.lastName, "a");
+
+    }
+
+    public String getRandomString(int n) {
+        String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                + "abcdefghijklmnopqrstuvxyz";
+
+        // create StringBuffer size of AlphaNumericString
+        StringBuilder sb = new StringBuilder(n);
+
+        for (int i = 0; i < n; i++) {
+            int index = (int) (AlphaNumericString.length() * Math.random());
+
+            sb.append(AlphaNumericString
+                    .charAt(index));
+        }
+        return sb.toString();
     }
 
 
